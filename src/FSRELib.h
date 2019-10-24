@@ -58,7 +58,7 @@ int imageParse(FILE *ParseIn, FILE *ParseOut)
             if (ExitCase == 0)
             {
                 if (Paint != 0xD9) 
-                ExitCase--;
+                    ExitCase--;
                 else
                 {
                     int SkipSpace = FSIO - ftell(ParseIn) % FSIO;
