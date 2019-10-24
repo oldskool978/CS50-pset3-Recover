@@ -19,7 +19,7 @@ long OpenEOF(FILE *InFile);
 int imageParse(FILE *ParseIn, FILE *ParseOut);
 
 
-//checks for EOF
+//reports location of EOF
 long OpenEOF(FILE *InFile)
 {
     long OriginalP = ftell(InFile);
@@ -48,28 +48,37 @@ int imageParse(FILE *ParseIn, FILE *ParseOut)
         fread(&Check, sizeof(MagicP), 1, ParseIn);
     }
     fseek(ParseIn, -(long)sizeof(MagicP), SEEK_CUR);
+    int ExitCase = -1;
     do
     {
         for (int i = 0; i < FSIO; i++)
         {
             int Paint = fgetc(ParseIn);
-            //Close files and return 0 in case of EOF
-            if (feof(ParseIn))
-            {
-                fclose(ParseIn);
-                fclose(ParseOut);
-                exit(0);
-            }
             putc(Paint, ParseOut);
+            if (ExitCase == 0)
+            {
+                if (Paint != 0xD9) 
+                ExitCase--;
+                else
+                {
+                    int SkipSpace = FSIO - ftell(ParseIn) % FSIO;
+                    fclose(ParseOut);
+                    fseek(ParseIn, SkipSpace, SEEK_CUR);
+                    return ftell(ParseIn);
+                }
+                
+            }
+            if (Paint == 0xFF)
+                ExitCase = 0;      
         }
         fread(&Check, sizeof(MagicP), 1, ParseIn);
         fseek(ParseIn, -(long)sizeof(MagicP), SEEK_CUR);
-        
-        //*TODO* Check for end of jpg "0xFF && 0xD9"
     }
     while (Check.MP1 != Hit.MP1 |
            Check.MP2 != Hit.MP2 |
-           Check.MP3 != Hit.MP3);
+           Check.MP3 != Hit.MP3 |
+           Check.MP4  > 0xef    |
+           Check.MP4 < 0xe0     );
 
     fclose(ParseOut);
     return ftell(ParseIn);
