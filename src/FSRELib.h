@@ -15,7 +15,7 @@ typedef struct
 //OpenEOF reports back the final byte of a file
 long OpenEOF(FILE *InFile);
 
-//imageParse extracts a single jpg, continues to export bytes untils EOF (exit case) or new jpg found.  NOTE* Does not close InFile. can be ran ittiratavely 
+//imageParse extracts a single jpg, NOTE* Does not close InFile. can be ran ittiratavely 
 int imageParse(FILE *ParseIn, FILE *ParseOut);
 
 
